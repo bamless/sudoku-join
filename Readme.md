@@ -1,4 +1,4 @@
-# Sudoku Solver
+# Fork-Join Sudoku Solver
 
 #### A backtracking sequential and parallel implementation of a sudoku solving algorithm written in java using the forkjoin framework. This is an assignment for the 'Programmazione di Sistemi Multicore' course of the computer science major of 'La Sapienza' university of Rome.
 #### Authors: Fabrizio Pietrucci, Davide Pucci.
