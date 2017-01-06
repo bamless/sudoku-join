@@ -1,0 +1,38 @@
+<project name="sudoku" default="jar" basedir=".">
+	<!-- Set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="bin" location="bin" />
+	<property name="jar" location="jar" />
+	<property name="main-class" value="com.bizio.sudoku.Main" />
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the binaries directory structure used by compile -->
+		<mkdir dir="${bin}" />
+	</target>
+
+	<target name="compile" depends="init" description="compiles the source">
+		<!-- Compile the java code from ${src} into ${bin} -->
+		<javac srcdir="${src}" destdir="${bin}" />
+	</target>
+
+	<target name="jar" depends="compile" description="generates the executable jar">
+		<!-- Create the jar directory -->
+		<mkdir dir="${jar}" />
+
+		<!-- Put everything in ${bin} into the sudoku-${DSTAMP}.jar file -->
+		<jar jarfile="${jar}/sudoku.jar" basedir="${bin}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${bin} and ${jar} directory trees -->
+		<delete dir="${bin}" />
+		<delete dir="${jar}" />
+	</target>
+</project>
