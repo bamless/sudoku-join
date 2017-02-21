@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017  Fabrizio Pietrucci, Davide Pucci
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.bizio.sudoku;
 
 import java.io.BufferedReader;
@@ -27,22 +43,17 @@ import java.util.concurrent.RecursiveTask;
  *
  */
 public class SudokuBoard {
-
 	/** Size of the classic sudoku board */
 	public final static int N = 9;
-
 	/** Sequential cutoff for the fork-join parallel solve */
 	private final static BigInteger CUTOFF_SEARCHSPACE = new BigDecimal("1E25").toBigInteger();
-
 	/** Fork join pool for the parallel solve */
 	public static final ForkJoinPool pool = new ForkJoinPool();
-
 	/** Number of fixed cells in this sudoku */
 	private int fixed;
-
 	/** The sudoku board */
 	private byte board[][];
-	
+
 	public SudokuBoard(byte board[][]) {
 		if (board.length != N)
 			throw new SudokuFormatException(String.format("The sudoku board must be %dx%d", N, N));
@@ -55,9 +66,9 @@ public class SudokuBoard {
 	}
 
 	/**
-	 * Builds a {@link SudokuBoard} from a string. the points represent blank
-	 * spaces.
-	 * 
+	 * Builds a {@link SudokuBoard} from a continous string. the points represent
+	 * blank spaces.
+	 *
 	 * @param str the string to parse
 	 */
 	public SudokuBoard(String str) {
@@ -73,6 +84,7 @@ public class SudokuBoard {
 		fixed = o.fixed;
 	}
 
+	/** Reads a board from file. See README for board formatting */
 	public SudokuBoard(File file) throws FileNotFoundException {
 		this.board = readBoardFromFile(file);
 		computeFixed();
@@ -81,7 +93,7 @@ public class SudokuBoard {
 	/**
 	 * Solves the sudoku using a backtracking algorithm that finds all the
 	 * possible solutions.
-	 * 
+	 *
 	 * @return the number of solutions
 	 */
 	public int solve() {
@@ -104,9 +116,7 @@ public class SudokuBoard {
 		for (byte num = 1; num <= N; num++) {
 			if (isValid(row, col, num)) {
 				setCell(row, col, num);
-
 				res += row < N - 1 ? solve(row + 1, col) : solve(0, col + 1);
-
 				setCell(row, col, (byte) 0);
 			}
 		}
@@ -116,7 +126,7 @@ public class SudokuBoard {
 	/**
 	 * Solves the sudoku using a backtracking algorithm executed in parallel
 	 * with the fork join framework.
-	 * 
+	 *
 	 * @return the number of solutions
 	 */
 	public int parallelSolve() {
@@ -127,18 +137,18 @@ public class SudokuBoard {
 	 * Checks if a number can be placed in a cell without breaking the rules of
 	 * sudoku. Used in the backtracking algorithm in order to reduce the search
 	 * space.
-	 * 
+	 *
 	 * @see #solve()
 	 *
-	 * @param num the value to be checked
+	 * @param val the value to be checked
 	 * @param row cell row
 	 * @param col cell column
 	 * @return true if the value can be placed without breaking the rules of sudoku, false otherwise
 	 */
-	private boolean isValid(int row, int col, byte num) {
+	private boolean isValid(int row, int col, byte val) {
 		// check for equals numbers on the column and the row
 		for (int i = 0; i < N; i++) {
-			if (getCell(row, i) == num || getCell(i, col) == num)
+			if (getCell(row, i) == val || getCell(i, col) == val)
 				return false;
 		}
 
@@ -153,10 +163,10 @@ public class SudokuBoard {
 		int col1 = (col + 2) % 3;
 		int col2 = (col + 4) % 3;
 
-		if (getCell(row1 + rowSec, col1 + colSec) == num) return false;
-		if (getCell(row2 + rowSec, col1 + colSec) == num) return false;
-		if (getCell(row1 + rowSec, col2 + colSec) == num) return false;
-		if (getCell(row2 + rowSec, col2 + colSec) == num) return false;
+		if (getCell(row1 + rowSec, col1 + colSec) == val) return false;
+		if (getCell(row2 + rowSec, col1 + colSec) == val) return false;
+		if (getCell(row1 + rowSec, col2 + colSec) == val) return false;
+		if (getCell(row2 + rowSec, col2 + colSec) == val) return false;
 
 		return true;
 	}
@@ -180,10 +190,11 @@ public class SudokuBoard {
 		return board;
 	}
 
-	/** Reads a sudoku board from file.
-	 * 
+	/**
+	 * Reads a sudoku board from file. See README for file formatting.
+	 *
 	 * @param file The file containing the sudoku board
-	 * @return The board as an array of bytes
+	 * @return The board as table of bytes
 	 * @throws FileNotFoundException if the file isn't found
 	 */
 	private byte[][] readBoardFromFile(File file) throws FileNotFoundException {
@@ -200,21 +211,21 @@ public class SudokuBoard {
 		return parseString(sb.toString());
 	}
 
-	/** @return the xy cell */
+	/** @return the specified cell */
 	public byte getCell(int row, int col) {
 		return board[row][col];
 	}
 
-	/** Sets val in the xy cell */
+	/** Sets a val in the cell */
 	public void setCell(int row, int col, byte val) {
-		if (val == 0)
+		if (!isEmpty(row, col) && val == 0)
 			fixed--;
-		else if (board[row][col] == 0)
+		else if (isEmpty(row, col) && val != 0)
 			fixed++;
 		board[row][col] = val;
 	}
 
-	/** @return true if the cell at xy is filled, false otherwise */
+	/** @return true if the specified cell is filled (not 0), false otherwise */
 	public boolean isEmpty(int row, int col) {
 		return getCell(row, col) == 0;
 	}
@@ -284,13 +295,11 @@ public class SudokuBoard {
 
 	/**
 	 * Fork-join action for solving a sudoku in parallel.
-	 * 
+	 *
 	 * @author fabrizio
 	 */
 	private class SolverTask extends RecursiveTask<Integer> {
-
 		private static final long serialVersionUID = 7541995084434430895L;
-
 		/** The sudoku board */
 		private SudokuBoard board;
 		/** The position in the board of the current task */
@@ -326,7 +335,6 @@ public class SudokuBoard {
 				// no need to copy the sudoku, so pass the board field of the sudoku
 				SolverTask task = row < N - 1 ? new SolverTask(row + 1, col, new SudokuBoard(board.board))
 						: new SolverTask(0, col + 1, new SudokuBoard(board.board));
-
 				// do not fork, compute directly
 				return task.compute();
 			}
@@ -337,10 +345,8 @@ public class SudokuBoard {
 			for (byte num = 1; num <= N; num++) {
 				if (board.isValid(row, col, num)) {
 					board.setCell(row, col, num);
-
 					tasks.add(row < N - 1 ? new SolverTask(row + 1, col, new SudokuBoard(board))
 							: new SolverTask(0, col + 1, new SudokuBoard(board)));
-
 					board.setCell(row, col, (byte) 0);
 				}
 			}
@@ -351,7 +357,7 @@ public class SudokuBoard {
 			// execute in parallel all the actions in the queue. The last action in the queue does not fork but get executed in this thread.
 			SolverTask continuation = tasks.get(tasks.size() - 1);
 			tasks.remove(tasks.size() - 1);
-			
+
 			for (SolverTask task : tasks)
 				task.fork();
 

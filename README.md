@@ -8,6 +8,9 @@ How to compile:
 2. Run form terminal **'ant jar'**. If you don't have **apache ant** download it from here: http://ant.apache.org/bindownload.cgi.
 
 How to use:
-1. Run from terminal **'java -jar sudoku.jar path'** where:
-    * **sudoku.jar** is the jar file in the jar/ folder.
-    * **path** is a path to a file containing a sudoku board formatted according to HW specifications.
+1. Navigate to the **jar** folder generated after compiling
+2. Run from terminal **'java -jar sudoku.jar path'** where:
+    - **sudoku.jar** is the jar file in the **jar** folder.
+    - **path** is a path to a file containing a sudoku 9x9 board where:
+    Only numbers from 1 to 9 appear. The blank spaces are represented as dots.
+    For examples see the .txt files in the project's root
