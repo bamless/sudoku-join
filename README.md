@@ -12,5 +12,5 @@ How to use:
   2. Run from terminal **'java -jar sudoku.jar path'** where:
       - **sudoku.jar** is the jar file in the **jar** folder.
       - **path** is a path to a file containing a sudoku 9x9 board where:
-      Only numbers from 1 to 9 appear. The blank spaces are represented as dots.
-      For examples see the .txt files in the project's root
+        * Only numbers from 1 to 9 appear. The blank spaces are represented as dots.
+        * For examples see the .txt files in the project's root
