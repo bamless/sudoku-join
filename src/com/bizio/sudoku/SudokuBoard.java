@@ -57,9 +57,10 @@ public class SudokuBoard {
 	public SudokuBoard(byte board[][]) {
 		if (board.length != N)
 			throw new SudokuFormatException(String.format("The sudoku board must be %dx%d", N, N));
-		for (byte[] b : board)
+		for (byte[] b : board) {
 			if (b.length != N)
 				throw new SudokuFormatException(String.format("The sudoku board must be %dx%d", N, N));
+		}
 
 		this.board = board;
 		computeFixed();
